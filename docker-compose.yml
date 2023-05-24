@@ -1,9 +1,19 @@
 version: '3'
 
 services:
+  users-api-josiney:
+    build: .
+    restart: always
+    ports:
+      - ${APPLICATION_PORT}:${APPLICATION_PORT}
+    depends_on:
+      - rabbitmq
+      - mongodb
+    networks:
+      - payever
+
   mongodb:
     image: mongo:latest
-    container_name: mongodb
     restart: always
     ports:
       - 27017:27017
@@ -12,10 +22,13 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.7-management
-    container_name: rabbitmq
+    restart: always
     ports:
       - "5672:5672"
       - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_USER: ${RABBIT_PASSWORD}
     volumes:
       - ./messaging/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.config
     networks:
@@ -23,4 +36,4 @@ services:
 
 networks:
   payever:
-   driver: bridge
+    driver: bridge
